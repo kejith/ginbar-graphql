@@ -1,6 +1,6 @@
 // node-graphql/src/resolvers.js
-
-const { posts } =  require('./database.js');
+const { findPost, findPosts } =  require('./query.js');
+const { createPost } =  require('./mutations.js');
 
 const resolvers = {
     Post: {
@@ -18,19 +18,14 @@ const resolvers = {
     },
 
     Query: {
-      posts: (parent, args) => {
-        return posts
-      },
-      post: (parent, args) => {
-        var post = posts.filter((post) => post.id == Number(args.id))
-        return post.length > 0 ? post[0] : null;
-      }
+      posts: findPosts,
+      post: findPost
     },
 
-
-
+    Mutation: {
+      createPost: createPost
+    }
   }
-
 
   module.exports = {
     resolvers,

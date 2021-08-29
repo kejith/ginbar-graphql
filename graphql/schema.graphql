@@ -1,0 +1,43 @@
+type Post {
+  id: ID!
+  filename: String
+  thumbnail_filename: String!
+  content_type: String!
+  user: String!
+  upvoted: Boolean
+  score: Int
+  created_at: String!
+  updated_at: String
+  deleted_at: String
+}
+
+type User {
+  id: ID!           
+  created_at: DateTime      
+  updated_at: DateTime      
+  deleted_at: DateTime?         
+  email: String!        
+  password: String!        
+  comments: [Comment]
+  posts: [Post]
+}
+
+type Comment {
+  id:Int             
+  created_at: DateTime        
+  updated_at: DateTime        
+  deleted_at: DateTime?       
+  content: String          
+  score: Int             
+  user: User          
+  post: Post
+}
+
+type Query {
+  posts: [Post!]!
+  post(id: ID!): Post
+}
+
+type Mutation {
+  createPost(url: String!, user: String!): Post!
+}

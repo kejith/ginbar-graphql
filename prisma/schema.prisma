@@ -1,0 +1,150 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model comment_votes {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  created_at DateTime  @default(now()) @db.DateTime(0)
+  updated_at DateTime  @default(now()) @db.DateTime(0)
+  deleted_at DateTime? @db.DateTime(0)
+  user_id    Int       @db.UnsignedInt
+  comment_id Int       @db.UnsignedInt
+  upvoted    Int       @default(0) @db.SmallInt
+  comments   comments  @relation(fields: [comment_id], references: [id])
+  users      users     @relation(fields: [user_id], references: [id])
+
+  @@unique([user_id, comment_id], name: "uidx_comment_vote")
+  @@index([comment_id], name: "comment_id")
+  @@index([deleted_at], name: "idx_comment_votes_deleted_at")
+}
+
+model comments {
+  id            Int             @id @default(autoincrement()) @db.UnsignedInt
+  created_at    DateTime        @default(now()) @db.DateTime(0)
+  updated_at    DateTime        @default(now()) @db.DateTime(0)
+  deleted_at    DateTime?       @db.DateTime(0)
+  content       String          @db.Text
+  score         Int             @default(0)
+  user_name     String          @db.VarChar(255)
+  post_id       Int             @db.UnsignedInt
+  posts         posts           @relation(fields: [post_id], references: [id])
+  users         users           @relation(fields: [user_name], references: [name])
+  comment_votes comment_votes[]
+
+  @@index([deleted_at], name: "idx_comments_deleted_at")
+  @@index([post_id], name: "post_id")
+  @@index([user_name], name: "user_name")
+}
+
+model post_tag_votes {
+  id          Int       @id @default(autoincrement()) @db.UnsignedInt
+  user_id     Int       @db.UnsignedInt
+  post_tag_id Int       @db.UnsignedInt
+  upvoted     Int       @default(0) @db.SmallInt
+  post_tags   post_tags @relation(fields: [post_tag_id], references: [id])
+  users       users     @relation(fields: [user_id], references: [id])
+
+  @@unique([user_id, post_tag_id], name: "uidx_post_tag_vote")
+  @@index([post_tag_id], name: "post_tag_id")
+}
+
+model post_tags {
+  id             Int              @id @default(autoincrement()) @db.UnsignedInt
+  score          Int              @default(0) @db.SmallInt
+  tag_id         Int              @db.UnsignedInt
+  post_id        Int              @db.UnsignedInt
+  user_id        Int              @db.UnsignedInt
+  posts          posts            @relation(fields: [post_id], references: [id])
+  tags           tags             @relation(fields: [tag_id], references: [id])
+  users          users            @relation(fields: [user_id], references: [id])
+  post_tag_votes post_tag_votes[]
+
+  @@unique([tag_id, post_id], name: "uidx_post_tags")
+  @@index([post_id], name: "post_id")
+  @@index([user_id], name: "user_id")
+}
+
+model post_votes {
+  id         Int       @id @default(autoincrement()) @db.UnsignedInt
+  created_at DateTime  @default(now()) @db.DateTime(0)
+  updated_at DateTime  @default(now()) @db.DateTime(0)
+  deleted_at DateTime? @db.DateTime(0)
+  upvoted    Int       @default(0) @db.SmallInt
+  user_id    Int       @db.UnsignedInt
+  post_id    Int       @db.UnsignedInt
+  posts      posts     @relation(fields: [post_id], references: [id])
+  users      users     @relation(fields: [user_id], references: [id])
+
+  @@unique([user_id, post_id], name: "uidx_post_vote")
+  @@index([deleted_at], name: "idx_post_votes_deleted_at")
+  @@index([post_id], name: "post_votes_ibfk_2")
+}
+
+model posts {
+  id                 Int          @id @default(autoincrement()) @db.UnsignedInt
+  created_at         DateTime     @default(now()) @db.DateTime(0)
+  updated_at         DateTime     @default(now()) @db.DateTime(0)
+  deleted_at         DateTime?    @db.DateTime(0)
+  url                String       @db.Text
+  filename           String       @db.VarChar(255)
+  user_name          String       @db.VarChar(255)
+  score              Int          @default(0)
+  content_type       String       @default("image") @db.VarChar(255)
+  thumbnail_filename String       @default("") @db.VarChar(255)
+  user_level         Int          @default(0) @db.TinyInt
+  p_hash_0           BigInt       @default(0) @db.UnsignedBigInt
+  p_hash_1           BigInt       @default(0) @db.UnsignedBigInt
+  p_hash_2           BigInt       @default(0) @db.UnsignedBigInt
+  p_hash_3           BigInt       @default(0) @db.UnsignedBigInt
+  uploaded_filename  String       @db.Text
+  users              users?        @relation(fields: [user_name], references: [name])
+  comments           comments[]
+  post_tags          post_tags[]
+  post_votes         post_votes[]
+
+  @@index([user_level], name: "idx_posts_userlevel")
+  @@index([user_name], name: "user_name")
+}
+
+model tags {
+  id         Int         @id @default(autoincrement()) @db.UnsignedInt
+  name       String      @unique @db.VarChar(32)
+  user_level Int         @default(0) @db.TinyInt
+  post_tags  post_tags[]
+
+  @@index([user_level], name: "idx_tags_userlevel")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model tmp_table {
+  id               Int?
+  hamming_distance Int?
+  related_post     Int?
+
+  @@ignore
+}
+
+model users {
+  id             Int              @id @default(autoincrement()) @db.UnsignedInt
+  created_at     DateTime         @default(now()) @db.DateTime(0)
+  updated_at     DateTime         @default(now()) @db.DateTime(0)
+  deleted_at     DateTime?        @db.DateTime(0)
+  name           String           @unique @db.VarChar(255)
+  email          String           @unique @db.VarChar(255)
+  password       String           @db.VarChar(255)
+  level          Int              @default(1) @db.TinyInt
+  comment_votes  comment_votes[]
+  comments       comments[]
+  post_tag_votes post_tag_votes[]
+  post_tags      post_tags[]
+  post_votes     post_votes[]
+  posts          posts[]
+
+  @@index([level], name: "idx_user_level")
+  @@index([deleted_at], name: "idx_users_deleted_at")
+}
