@@ -1,13 +1,23 @@
+fragment CorePostFields on Post {
+  id
+  thumbnail_filename
+  content_type
+  user
+  score
+  created_at
+  updated_at
+}
+
 type Post {
   id: ID!
-  filename: String
   thumbnail_filename: String!
   content_type: String!
   user: String!
-  upvoted: Boolean
+  filename: String
   score: Int
   created_at: String!
   updated_at: String
+  upvoted: Boolean
   deleted_at: String
 }
 

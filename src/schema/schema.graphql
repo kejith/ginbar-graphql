@@ -1,11 +1,47 @@
   type Post {
     id: ID!
     filename: String
+    url: String
     thumbnail_filename: String!
     content_type: String!
-    user: String!
+    user: User!
     upvoted: Boolean
     score: Int
+    comments: [Comment!]!
+    tags: [PostTag!]!
+    created_at: String!
+    updated_at: String
+    deleted_at: String
+  }
+  
+  type User {
+    id: ID!
+    name: String!
+    level: Int!  
+    created_at: String!
+    updated_at: String
+    deleted_at: String
+  }
+
+  type PostTag {
+    id: ID!
+    post: Post!
+    user: User!
+    score: Int!
+    tag: Tag!
+  }
+
+  type Tag {
+    name: String!
+    user_level: Int!
+  }
+
+  type Comment {
+    id: ID!
+    content: String!
+    score: Int!
+    user: User!
+    post: Post!
     created_at: String!
     updated_at: String
     deleted_at: String
@@ -19,6 +55,6 @@
   type Mutation {
     createPost(
       url: String!,
-      user: String!
+      user: String! 
     ): Post!
   }

@@ -5,7 +5,6 @@ async function createPost (parent, args, context, info)  {
         user: args.user,
       }
     });
-    console.log(createdPost)
 
     return createdPost
 }
